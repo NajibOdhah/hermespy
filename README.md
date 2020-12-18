@@ -74,8 +74,8 @@ Tests are run by calling `pytest` in the root directory. They test for
 
 # Documentation
 
-Documentation can be found [here](https://barkhauseninstitut.gitlab.io/hermespy).
-Quadriga documentation can be found in **hermes/docs**.
+Documentation can be found [here](https://barkhausen-institut.github.io/hermespy).
+Quadriga documentation can be found in **hermes/docssource**.
 
 # Authors
 
