@@ -1,0 +1,70 @@
+modem package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+
+   modem.coding
+   modem.tools
+
+Submodules
+----------
+
+modem.digital\_modem module
+---------------------------
+
+.. automodule:: modem.digital_modem
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+modem.digital\_modem\_chirp\_fsk module
+---------------------------------------
+
+.. automodule:: modem.digital_modem_chirp_fsk
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+modem.digital\_modem\_ofdm module
+---------------------------------
+
+.. automodule:: modem.digital_modem_ofdm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+modem.digital\_modem\_psk\_qam module
+-------------------------------------
+
+.. automodule:: modem.digital_modem_psk_qam
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+modem.modem module
+------------------
+
+.. automodule:: modem.modem
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+modem.rf\_chain module
+----------------------
+
+.. automodule:: modem.rf_chain
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: modem
+   :members:
+   :undoc-members:
+   :show-inheritance:
