@@ -1,3 +1,6 @@
+[![hermespy Actions Status](https://github.com/barkhausen-institut/hermespy/workflows/hermespy/badge.svg)](https://github.com/barkhausen-institut/hermespy/actions)
+
+
 # HermesPy
 
 HermesPy (Heterogeneous Radio Mobile Simulator - Python) is a semi-static link-level simulator based on time-driven mechanisms.
