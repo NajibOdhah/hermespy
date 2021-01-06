@@ -3,10 +3,10 @@ import warnings
 import math
 
 import numpy as np
-from parameters_parser.parameters_digital_modem import ParametersDigitalModem
+from parameters_parser.parameters_waveform_generator import ParametersWaveformGenerator
 
 
-class ParametersPskQam(ParametersDigitalModem):
+class ParametersPskQam(ParametersWaveformGenerator):
     """This class implements the parser of a PSK/QAM modem
 
     Attributes:

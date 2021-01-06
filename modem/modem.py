@@ -9,9 +9,9 @@ from parameters_parser.parameters_psk_qam import ParametersPskQam
 from parameters_parser.parameters_chirp_fsk import ParametersChirpFsk
 from parameters_parser.parameters_ofdm import ParametersOfdm
 from parameters_parser.parameters_repetition_encoder import ParametersRepetitionEncoder
-from modem.digital_modem_psk_qam import DigitalModemPskQam
-from modem.digital_modem_chirp_fsk import DigitalModemChirpFsk
-from modem.digital_modem_ofdm import DigitalModemOfdm
+from modem.waveform_generator_psk_qam import WaveformGeneratorPskQam
+from modem.waveform_generator_chirp_fsk import WaveformGeneratorChirpFsk
+from modem.waveform_generator_ofdm import WaveformGeneratorOfdm
 from modem.rf_chain import RfChain
 from modem.coding.repetition_encoder import RepetitionEncoder, RepetitionDecoder
 from source.bits_source import BitsSource
@@ -23,12 +23,12 @@ P = TypeVar('P', bound=ParametersModem)
 class Modem(Generic[P]):
     """Implements a modem.
 
-    The modem consists of an analog RF chain a digital modem, and can be used
+    The modem consists of an analog RF chain, a waveform generator, and can be used
     either for transmission or reception of a given technology.
 
     Attributes:
         param (ParametersModem): Modem-specific parameters.
-        digital_modem (DigitalModem): digital modem object, generates baseband samples.
+        waveform_generator (WaveformGenerator): waveform generator object, generates baseband samples.
         rf_chain (RfChain): RF chain object, that models RF impairments.
         power_factor(float): if this is a transmit modem, signal is scaled to
             the desired power, depending on the current power factor.
@@ -44,14 +44,14 @@ class Modem(Generic[P]):
             ParametersRepetitionEncoder(),
             self.param.technology.bits_in_frame)
         self.decoder = RepetitionDecoder(self.encoder)
-        self.digital_modem: Any
+        self.waveform_generator: Any
 
         if isinstance(param.technology, ParametersPskQam):
-            self.digital_modem = DigitalModemPskQam(param.technology)
+            self.waveform_generator = WaveformGeneratorPskQam(param.technology)
         elif isinstance(param.technology, ParametersChirpFsk):
-            self.digital_modem = DigitalModemChirpFsk(param.technology)
+            self.waveform_generator = WaveformGeneratorChirpFsk(param.technology)
         elif isinstance(param.technology, ParametersOfdm):
-            self.digital_modem = DigitalModemOfdm(
+            self.waveform_generator = WaveformGeneratorOfdm(
                 param.technology, random_number_gen)
         else:
             raise ValueError(
@@ -70,7 +70,7 @@ class Modem(Generic[P]):
         self._paired_tx_modem = other_modem
 
     def send(self, drop_duration: float) -> np.ndarray:
-        """Returns an array with the complex baseband samples of a digital modem.
+        """Returns an array with the complex baseband samples of a waveform generator.
 
         The signal may be distorted by RF impairments.
 
@@ -100,7 +100,7 @@ class Modem(Generic[P]):
                     encoded_bits_per_frame_flattened, block
                 )
 
-            frame, timestamp, initial_sample_num = self.digital_modem.create_frame(
+            frame, timestamp, initial_sample_num = self.waveform_generator.create_frame(
                 timestamp, encoded_bits_per_frame_flattened)
 
             if frame_index == 1:
@@ -153,7 +153,7 @@ class Modem(Generic[P]):
     def _adjust_tx_power(self, tx_signal: np.ndarray) -> np.ndarray:
         """Adjusts power of tx_signal by power factor."""
         if self.param.tx_power != 0:
-            power = self.digital_modem.get_power()
+            power = self.waveform_generator.get_power()
 
             self.power_factor = self.param.tx_power / power
             tx_signal = tx_signal * np.sqrt(self.power_factor)
@@ -184,7 +184,7 @@ class Modem(Generic[P]):
 
         while rx_signal.size:
             initial_size = rx_signal.shape[1]
-            bits_rx, rx_signal = self.digital_modem.receive_frame(
+            bits_rx, rx_signal = self.waveform_generator.receive_frame(
                 rx_signal, timestamp_in_samples, snr_linear_esn0)
 
             if rx_signal.size:
@@ -199,15 +199,15 @@ class Modem(Generic[P]):
     def get_bit_energy(self) -> float:
         """Returns the average bit energy of the modulated signal.
         """
-        return self.digital_modem.get_bit_energy() * self.power_factor
+        return self.waveform_generator.get_bit_energy() * self.power_factor
 
     def get_symbol_energy(self) -> float:
         """Returns the average symbol energy of the modulated signal.
         """
-        return self.digital_modem.get_symbol_energy() * self.power_factor
+        return self.waveform_generator.get_symbol_energy() * self.power_factor
 
     def set_channel(self, channel: Channel):
-        self.digital_modem.set_channel(channel)
+        self.waveform_generator.set_channel(channel)
 
         if isinstance(channel.param.encoding, ParametersRepetitionEncoder):
             self.encoder = RepetitionEncoder(

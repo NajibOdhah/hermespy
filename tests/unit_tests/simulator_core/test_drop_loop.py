@@ -24,8 +24,8 @@ class TestDropLoop(unittest.TestCase):
         mock_scenario = Mock()
         mock_scenario.rx_modems = [Mock]
         mock_scenario.tx_modems = [Mock]
-        mock_scenario.tx_modems[0].digital_modem = Mock()
-        mock_scenario.tx_modems[0].digital_modem.max_frame_length = .1
+        mock_scenario.tx_modems[0].waveform_generator = Mock()
+        mock_scenario.tx_modems[0].waveform_generator.max_frame_length = .1
 
         self.drop_loop = DropLoop(mock_params_general, mock_scenario)
         self.drop_loop._statistics = Mock()

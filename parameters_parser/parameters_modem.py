@@ -11,7 +11,7 @@ class ParametersModem(ABC):
 
     Attributes:
         technology_val list(str): valid technology values
-        technology (ParametersDigitalModem): object containing all technology-specific parameters
+        technology (ParametersWaveformGenerator): object containing all technology-specific parameters
         position (list(float)): 3D-location of transceiver (in meters)
         velocity (list(float)): 3D- velocity of transceiver (in m/s)
         number_of_antennas (int): number of tx/rx antennas

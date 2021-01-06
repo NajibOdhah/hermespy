@@ -1,10 +1,10 @@
 import numpy as np
 
 import configparser
-from parameters_parser.parameters_digital_modem import ParametersDigitalModem
+from parameters_parser.parameters_waveform_generator import ParametersWaveformGenerator
 
 
-class ParametersChirpFsk(ParametersDigitalModem):
+class ParametersChirpFsk(ParametersWaveformGenerator):
     """This class implements the parser of a chirp FSK modem
 
     Attributes:

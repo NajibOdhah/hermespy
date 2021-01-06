@@ -3,12 +3,12 @@ from typing import List, Tuple
 import numpy as np
 from scipy import signal
 
-from modem.digital_modem import DigitalModem
+from modem.waveform_generator import WaveformGenerator
 from parameters_parser.parameters_ofdm import ParametersOfdm
 from modem.tools.psk_qam_mapping import PskQamMapping
 
 
-class DigitalModemOfdm(DigitalModem):
+class WaveformGeneratorOfdm(WaveformGenerator):
     """This module provides a class for a generic OFDM modem, with a flexible frame configuration.
 
     The following features are supported:

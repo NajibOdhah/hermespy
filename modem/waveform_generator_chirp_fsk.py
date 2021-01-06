@@ -3,12 +3,12 @@ from typing import Dict, Tuple, Any, List
 import numpy as np
 from scipy import integrate
 
-from modem.digital_modem import DigitalModem
+from modem.waveform_generator import WaveformGenerator
 from parameters_parser.parameters_chirp_fsk import ParametersChirpFsk
 
 
-class DigitalModemChirpFsk(DigitalModem):
-    """ Implements a chirp FSK digital modem."""
+class WaveformGeneratorChirpFsk(WaveformGenerator):
+    """ Implements a chirp FSK waveform generator."""
 
     def __init__(self, param: ParametersChirpFsk) -> None:
         super().__init__(param)

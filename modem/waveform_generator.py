@@ -3,17 +3,17 @@ from typing import List, Tuple
 
 import numpy as np
 
-from parameters_parser.parameters_digital_modem import ParametersDigitalModem
+from parameters_parser.parameters_waveform_generator import ParametersWaveformGenerator
 from channel.channel import Channel
 
 
-class DigitalModem(ABC):
-    """Implements an abstract digital modem.
+class WaveformGenerator(ABC):
+    """Implements an abstract waveform generator.
 
     Implementations for specific technologies should inherit from this class.
     """
 
-    def __init__(self, param: ParametersDigitalModem) -> None:
+    def __init__(self, param: ParametersWaveformGenerator) -> None:
         self.sampling_rate = param.sampling_rate
         self._channel: Channel = None
         self._samples_in_frame: int = None

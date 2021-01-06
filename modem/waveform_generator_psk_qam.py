@@ -2,13 +2,13 @@ from typing import List, Tuple
 
 import numpy as np
 
-from modem.digital_modem import DigitalModem
+from modem.waveform_generator import WaveformGenerator
 from parameters_parser.parameters_psk_qam import ParametersPskQam
 from modem.tools.shaping_filter import ShapingFilter
 from modem.tools.psk_qam_mapping import PskQamMapping
 
 
-class DigitalModemPskQam(DigitalModem):
+class WaveformGeneratorPskQam(WaveformGenerator):
     """This method provides a class for a generic PSK/QAM modem.
 
     The modem has the following characteristics:

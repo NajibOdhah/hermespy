@@ -30,7 +30,7 @@ class DropLoop:
         # update simulation drop length to consider at least one frame of all
         # modems
         drop_lengths = [
-            modem.digital_modem.max_frame_length for modem in scenario.tx_modems]
+            modem.waveform_generator.max_frame_length for modem in scenario.tx_modems]
         drop_lengths.append(self.params.drop_length)
         self.params.drop_length = max(drop_lengths)
 

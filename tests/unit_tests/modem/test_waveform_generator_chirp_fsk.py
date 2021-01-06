@@ -4,14 +4,14 @@ import os
 import numpy as np
 from scipy import integrate
 
-from modem.digital_modem_chirp_fsk import DigitalModemChirpFsk
+from modem.waveform_generator_chirp_fsk import WaveformGeneratorChirpFsk
 from modem.modem import Modem
 from parameters_parser.parameters_chirp_fsk import ParametersChirpFsk
 from parameters_parser.parameters_tx_modem import ParametersTxModem
 from source.bits_source import BitsSource
 
 
-class TestDigitalModemChirpFsk(unittest.TestCase):
+class TestWaveformGeneratorChirpFsk(unittest.TestCase):
     def setUp(self) -> None:
         self.params_cfsk = ParametersChirpFsk()
         self.params_cfsk.modulation_order = 32
@@ -31,7 +31,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
         self.modem_params.technology = self.params_cfsk
 
         self.source = BitsSource(np.random.RandomState(42))
-        self.digital_modem_chirp_fsk = DigitalModemChirpFsk(self.params_cfsk)
+        self.waveform_generator_chirp_fsk = WaveformGeneratorChirpFsk(self.params_cfsk)
         self.modem_chirp_fsk = Modem(
             self.modem_params,
             self.source,
@@ -48,19 +48,19 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
                 self.params_cfsk.sampling_rate)
         )
         self.assertEqual(
-            samples_in_chirp_expected, self.digital_modem_chirp_fsk._samples_in_chirp
+            samples_in_chirp_expected, self.waveform_generator_chirp_fsk._samples_in_chirp
         )
 
     def test_proper_samples_in_frame_calculation(self) -> None:
         samples_in_frame_expected = (
-            self.digital_modem_chirp_fsk._samples_in_chirp
-            * self.digital_modem_chirp_fsk._chirps_in_frame
+            self.waveform_generator_chirp_fsk._samples_in_chirp
+            * self.waveform_generator_chirp_fsk._chirps_in_frame
             + int((np.around(self.params_cfsk.guard_interval *
                              self.params_cfsk.sampling_rate)))
         )
 
         self.assertEqual(
-            samples_in_frame_expected, self.digital_modem_chirp_fsk._samples_in_frame
+            samples_in_frame_expected, self.waveform_generator_chirp_fsk._samples_in_frame
         )
 
     def test_proper_chirps_in_frame_calculation(self) -> None:
@@ -68,7 +68,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
             self.params_cfsk.number_pilot_chirps + self.params_cfsk.number_data_chirps
         )
         self.assertEqual(
-            chirps_in_frame_expected, self.digital_modem_chirp_fsk._chirps_in_frame
+            chirps_in_frame_expected, self.waveform_generator_chirp_fsk._chirps_in_frame
         )
 
     def test_proper_chirp_init(self) -> None:
@@ -76,16 +76,16 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
         f1 = -f0
 
         slope = self.params_cfsk.chirp_bandwidth / self.params_cfsk.chirp_duration
-        self.assertEqual(f0, self.digital_modem_chirp_fsk._f0)
-        self.assertEqual(f1, self.digital_modem_chirp_fsk._f1)
-        self.assertEqual(slope, self.digital_modem_chirp_fsk._slope)
+        self.assertEqual(f0, self.waveform_generator_chirp_fsk._f0)
+        self.assertEqual(f1, self.waveform_generator_chirp_fsk._f1)
+        self.assertEqual(slope, self.waveform_generator_chirp_fsk._slope)
 
     def test_proper_chirp_offset_calculation_at_frame_creation(self) -> None:
         offset_expected = np.array(
             [8, 17, 1, 14, 23, 31, 7, 8, 7, 27, 10,
                 24, 0, 27, 26, 29, 10, 11, 31, 30]
         )
-        offset_calculated = self.digital_modem_chirp_fsk._calculate_frequency_offsets(
+        offset_calculated = self.waveform_generator_chirp_fsk._calculate_frequency_offsets(
             self.source.get_bits(self.params_cfsk.bits_in_frame)
         )
 
@@ -93,10 +93,10 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
 
     def test_frequency_chirp_calculation(self) -> None:
         initial_frequencies = np.array([1, 10])
-        samples_in_chirp = self.digital_modem_chirp_fsk._samples_in_chirp
-        slope = self.digital_modem_chirp_fsk._slope
-        chirp_time = self.digital_modem_chirp_fsk._chirp_time
-        f1 = self.digital_modem_chirp_fsk._f1
+        samples_in_chirp = self.waveform_generator_chirp_fsk._samples_in_chirp
+        slope = self.waveform_generator_chirp_fsk._slope
+        chirp_time = self.waveform_generator_chirp_fsk._chirp_time
+        f1 = self.waveform_generator_chirp_fsk._f1
 
         no_samples = initial_frequencies.size * samples_in_chirp
 
@@ -109,7 +109,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
 
         a_expected = np.ones(no_samples, dtype=complex)
 
-        f, a = self.digital_modem_chirp_fsk._calculate_chirp_frequencies(
+        f, a = self.waveform_generator_chirp_fsk._calculate_chirp_frequencies(
             initial_frequencies
         )
 
@@ -119,10 +119,10 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
     def test_proper_new_timestamp_after_frame_creation(self) -> None:
         timestamp = 0
         new_timestamp_expected = (
-            timestamp + self.digital_modem_chirp_fsk._samples_in_frame
+            timestamp + self.waveform_generator_chirp_fsk._samples_in_frame
         )
 
-        _, new_timestamp, initial_sample_num = self.digital_modem_chirp_fsk.create_frame(
+        _, new_timestamp, initial_sample_num = self.waveform_generator_chirp_fsk.create_frame(
             timestamp, self.source.get_bits(self.params_cfsk.bits_in_frame)
         )
 
@@ -157,7 +157,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
             ]
         )
 
-        f, a = self.digital_modem_chirp_fsk._calculate_chirp_frequencies(
+        f, a = self.waveform_generator_chirp_fsk._calculate_chirp_frequencies(
             initial_frequencies
         )
 
@@ -169,7 +169,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
 
         output_signal_expected = a * np.exp(1j * phase)
 
-        output_signal, _, _ = self.digital_modem_chirp_fsk.create_frame(
+        output_signal, _, _ = self.waveform_generator_chirp_fsk.create_frame(
             0, self.source.get_bits(self.params_cfsk.bits_in_frame)
         )
 
@@ -183,11 +183,11 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
             'sin_signal.npy')
 
         np.testing.assert_array_almost_equal(
-            cos_signal_expected, self.digital_modem_chirp_fsk._prototype_function["cos"]
+            cos_signal_expected, self.waveform_generator_chirp_fsk._prototype_function["cos"]
         )
 
         np.testing.assert_array_almost_equal(
-            sin_signal_expected, self.digital_modem_chirp_fsk._prototype_function["sin"]
+            sin_signal_expected, self.waveform_generator_chirp_fsk._prototype_function["sin"]
         )
 
     def test_bit_energy_calculation(self) -> None:
@@ -196,7 +196,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
         symbol_energy = sum(abs(cos_signal_expected[0, :]) ** 2)
 
         bit_energy_expected = symbol_energy / self.params_cfsk.bits_per_symbol
-        bit_energy = self.digital_modem_chirp_fsk.get_bit_energy()
+        bit_energy = self.waveform_generator_chirp_fsk.get_bit_energy()
         self.assertAlmostEqual(bit_energy_expected, bit_energy)
 
     def test_symbol_energy_calculation(self) -> None:
@@ -204,7 +204,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
             'cos_signal.npy')
         symbol_energy_expected = sum(abs(cos_signal_expected[0, :]) ** 2)
 
-        symbol_energy = self.digital_modem_chirp_fsk.get_symbol_energy()
+        symbol_energy = self.waveform_generator_chirp_fsk.get_symbol_energy()
         self.assertAlmostEqual(symbol_energy_expected, symbol_energy)
 
     def read_saved_results_from_file(self, file_name: str) -> np.ndarray:
@@ -220,7 +220,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
         rx_signal = self.read_saved_results_from_file('rx_signal.npy')
         rx_signal = np.reshape(rx_signal, (1, rx_signal.shape[0]))
 
-        received_bits, _ = self.digital_modem_chirp_fsk.receive_frame(
+        received_bits, _ = self.waveform_generator_chirp_fsk.receive_frame(
             rx_signal, 0, 0)
         received_bits_expected = self.read_saved_results_from_file(
             'received_bits.npy').ravel()
@@ -233,7 +233,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
         rx_signal = np.append(rx_signal, np.ones(signal_overlength))
         rx_signal = np.reshape(rx_signal, (1, rx_signal.shape[0]))
 
-        _, left_over_rx_signal = self.digital_modem_chirp_fsk.receive_frame(
+        _, left_over_rx_signal = self.waveform_generator_chirp_fsk.receive_frame(
             rx_signal, 0, 0)
 
         self.assertEqual(left_over_rx_signal.shape[1], signal_overlength)
@@ -300,7 +300,7 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
         # compare the measured energy with the expected values
         self.assertAlmostEqual(
             power,
-            modem.digital_modem.get_power(),
+            modem.waveform_generator.get_power(),
             delta=power *
             relative_difference)
 
@@ -328,16 +328,16 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
 
         # create an index for the preamble samples
         number_preamble_samples = modem.param.technology.number_pilot_chirps * \
-            modem.digital_modem._samples_in_chirp
+            modem.waveform_generator._samples_in_chirp
         preamble_samples = np.asarray([], dtype=int)
         for idx in range(number_of_frames):
             preamble_samples = np.append(preamble_samples, np.arange(number_preamble_samples) +
-                                         idx * modem.digital_modem.samples_in_frame)
+                                         idx * modem.waveform_generator.samples_in_frame)
 
         # calculate average energy
         for idx in range(number_of_drops):
             signal = modem.send(
-                modem.digital_modem.max_frame_length *
+                modem.waveform_generator.max_frame_length *
                 number_of_frames)
             energy = np.sum(np.real(signal)**2 + np.imag(signal)**2)
             preamble_energy = np.sum(
@@ -358,12 +358,12 @@ class TestDigitalModemChirpFsk(unittest.TestCase):
             number_of_bits = modem.param.technology.bits_in_frame * number_of_frames
             power_or_energy = data_energy / number_of_bits
         elif energy_type == 'symbol_energy':
-            number_of_symbols = modem.digital_modem._chirps_in_frame * number_of_frames
+            number_of_symbols = modem.waveform_generator._chirps_in_frame * number_of_frames
             power_or_energy = energy_avg / number_of_symbols
         elif energy_type == 'power':
             number_of_data_samples = number_of_frames * \
                 int(modem.param.technology.number_data_chirps *
-                    modem.digital_modem._samples_in_chirp)
+                    modem.waveform_generator._samples_in_chirp)
             power_or_energy = data_energy / number_of_data_samples
         else:
             raise ValueError("invalid 'energy_type'")

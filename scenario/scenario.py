@@ -87,7 +87,7 @@ class Scenario:
                     channel = Channel(channel_params, modem_tx.param.number_of_antennas,
                                       modem_rx.param.number_of_antennas, self.random.get_rng(
                                           'channel'),
-                                      modem_tx.digital_modem.param.sampling_rate)
+                                      modem_tx.waveform_generator.param.sampling_rate)
 
                 elif channel_params.multipath_model == 'STOCHASTIC':
                     relative_speed = np.linalg.norm(
@@ -97,12 +97,12 @@ class Scenario:
                     channel = MultipathFadingChannel(channel_params, modem_tx.param.number_of_antennas,
                                                      modem_rx.param.number_of_antennas, self.random.get_rng(
                                                          'channel'),
-                                                     modem_tx.digital_modem.param.sampling_rate, doppler_freq)
+                                                     modem_tx.waveform_generator.param.sampling_rate, doppler_freq)
 
                 elif channel_params.multipath_model == 'QUADRIGA':
                     channel = QuadrigaChannel(
                         modem_tx, modem_rx,
-                        modem_tx.digital_modem.param.sampling_rate,
+                        modem_tx.waveform_generator.param.sampling_rate,
                         self.random.get_rng('channel'), self._quadriga_interface)
                 else:
                     raise ValueError(
@@ -189,12 +189,12 @@ class Scenario:
             channel = Channel(channel_params, modem_tx.param.number_of_antennas,
                               modem_rx.param.number_of_antennas, self.random.get_rng(
                                   "channel"),
-                              modem_rx.digital_modem.param.sampling_rate)
+                              modem_rx.waveform_generator.param.sampling_rate)
         elif channel_params.multipath_model == 'STOCHASTIC':
             channel = MultipathFadingChannel(channel_params, modem_tx.param.number_of_antennas,
                                              modem_rx.param.number_of_antennas, self.random.get_rng(
                                                  "channel"),
-                                             modem_rx.digital_modem.param.sampling_rate)
+                                             modem_rx.waveform_generator.param.sampling_rate)
         ###
         elif channel_params.multipath_model == 'QUADRIGA':
             pass

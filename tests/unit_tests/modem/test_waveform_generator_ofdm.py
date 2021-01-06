@@ -11,10 +11,10 @@ from channel.multipath_fading_channel import MultipathFadingChannel
 from source.bits_source import BitsSource
 from parameters_parser.parameters_channel import ParametersChannel
 from parameters_parser.parameters_ofdm import ParametersOfdm
-from modem.digital_modem_ofdm import DigitalModemOfdm
+from modem.waveform_generator_ofdm import WaveformGeneratorOfdm
 
 
-class TestDigitalModemOfdm(unittest.TestCase):
+class TestWaveformGeneratorOfdm(unittest.TestCase):
 
     def setUp(self) -> None:
         self.rnd = np.random.RandomState(42)
@@ -54,7 +54,7 @@ class TestDigitalModemOfdm(unittest.TestCase):
         self.param_dl.channel_estimation = "IDEAL"
         self.param_dl.equalization = "ZF"
         self.param_dl._check_params()
-        self.dl_modem_no_oversample = DigitalModemOfdm(self.param_dl, self.rnd)
+        self.dl_modem_no_oversample = WaveformGeneratorOfdm(self.param_dl, self.rnd)
 
         #######################################################################
         # create an instance of an UL modem with oversampling
@@ -92,7 +92,7 @@ class TestDigitalModemOfdm(unittest.TestCase):
         self.param_ul.equalization = "ZF"
         self.param_ul._check_params()
 
-        self.ul_modem_oversample = DigitalModemOfdm(self.param_ul, self.rnd)
+        self.ul_modem_oversample = WaveformGeneratorOfdm(self.param_ul, self.rnd)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -290,7 +290,7 @@ class TestDigitalModemOfdm(unittest.TestCase):
     def test_channel_estimation_ideal(self) -> None:
         """
         Test ideal channel estimation for a SISO system.
-        In this test we verify if the 'DigitalModemOfdm.channel_estimation' method returns the expected frequency
+        In this test we verify if the 'WaveformGeneratorOfdm.channel_estimation' method returns the expected frequency
         response from a known channel.
         """
         # create a channel
@@ -348,7 +348,7 @@ class TestDigitalModemOfdm(unittest.TestCase):
     def test_channel_estimation_ideal_preamble(self) -> None:
         """
         Test ideal preamble-based channel estimation for a SISO system.
-        In this test we verify if the 'DigitalModemOfdm.channel_estimation' method returns the expected frequency
+        In this test we verify if the 'WaveformGeneratorOfdm.channel_estimation' method returns the expected frequency
         response from a known channel at the beginning of a frame.
         """
         self._test_channel_estimation_ideal_reference("IDEAL_PREAMBLE")
@@ -356,7 +356,7 @@ class TestDigitalModemOfdm(unittest.TestCase):
     def test_channel_estimation_ideal_postamble(self) -> None:
         """
         Test ideal preamble-based channel estimation for a SISO system.
-        In this test we verify if the 'DigitalModemOfdm.channel_estimation' method returns the expected frequency
+        In this test we verify if the 'WaveformGeneratorOfdm.channel_estimation' method returns the expected frequency
         response from a known channel at the end of a frame.
         """
         self._test_channel_estimation_ideal_reference("IDEAL_POSTAMBLE")
@@ -364,7 +364,7 @@ class TestDigitalModemOfdm(unittest.TestCase):
     def test_channel_estimation_ideal_midamble(self) -> None:
         """
         Test ideal preamble-based channel estimation for a SISO system.
-        In this test we verify if the 'DigitalModemOfdm.channel_estimation' method returns the expected frequency
+        In this test we verify if the 'WaveformGeneratorOfdm.channel_estimation' method returns the expected frequency
         response from a known channel in the middle of a frame.
         """
         self._test_channel_estimation_ideal_reference("IDEAL_MIDAMBLE")
@@ -373,7 +373,7 @@ class TestDigitalModemOfdm(unittest.TestCase):
             self, position_in_frame: str) -> None:
         """
         Test ideal reference-signal-based channel estimation for a single reference in an UL frame.
-        In this test we verify if the 'DigitalModemOfdm.channel_estimation' method returns the expected frequency
+        In this test we verify if the 'WaveformGeneratorOfdm.channel_estimation' method returns the expected frequency
         response from a known channel at a given position in the frame.
 
         Args:

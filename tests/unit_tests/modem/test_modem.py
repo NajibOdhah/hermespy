@@ -48,17 +48,17 @@ class TestModem(unittest.TestCase):
 
         # assign necessary mocks
         self.mock_rf_chain = Mock()
-        self.mock_digital_modem = Mock()
-        self.mock_digital_modem.get_bit_energy.return_value = 1
-        self.mock_digital_modem.get_symbol_energy.return_value = 1
+        self.mock_waveform_generator = Mock()
+        self.mock_waveform_generator.get_bit_energy.return_value = 1
+        self.mock_waveform_generator.get_symbol_energy.return_value = 1
         self.modem.rf_chain = self.mock_rf_chain
-        self.modem.digital_modem = self.mock_digital_modem
+        self.modem.waveform_generator = self.mock_waveform_generator
 
     def tearDown(self) -> None:
         self.patch_parameters_modem.stop()
 
     def test_send(self) -> None:
-        """Tests if RfChain.send and DigitalModem.create_frame are properly called."""
+        """Tests if RfChain.send and WaveformGenerator.create_frame are properly called."""
 
         # define method parameters
         DROP_LENGTH = 0.1
@@ -69,17 +69,17 @@ class TestModem(unittest.TestCase):
             int(np.ceil(DROP_LENGTH * self.params_psk_am.sampling_rate)))
 
         # define return values
-        self.mock_digital_modem.create_frame = Mock(
+        self.mock_waveform_generator.create_frame = Mock(
             return_value=(FRAME, TIMESTAMP, INITIAL_SAMPLE_NUM)
         )
 
         _ = self.modem.send(DROP_LENGTH)
         np.testing.assert_array_equal(
-            self.mock_digital_modem.create_frame.call_args[0][1],
+            self.mock_waveform_generator.create_frame.call_args[0][1],
             self.source.bits_in_drop[0]
         )
         self.assertEqual(
-            self.mock_digital_modem.create_frame.call_args[0][0],
+            self.mock_waveform_generator.create_frame.call_args[0][0],
             0
         )
         np.testing.assert_array_equal(
@@ -88,7 +88,7 @@ class TestModem(unittest.TestCase):
         )
 
     def test_receive(self) -> None:
-        """Tests if RfChain.receive and DigitalModem.receive are properly called."""
+        """Tests if RfChain.receive and WaveformGenerator.receive are properly called."""
 
         # define method parameters
         SIGNAL = np.zeros((1, 3))
@@ -96,10 +96,10 @@ class TestModem(unittest.TestCase):
         NOISE = 42
         # define return values
         self.mock_rf_chain.receive = Mock(return_value=RET_VAL_RF_CHAIN)
-        self.mock_digital_modem.receive_frame = Mock(
+        self.mock_waveform_generator.receive_frame = Mock(
             return_value=([np.array([0, 0, 0])], np.zeros(0))
         )
-        self.mock_digital_modem.db_to_linear = Mock(return_value=NOISE)
+        self.mock_waveform_generator.db_to_linear = Mock(return_value=NOISE)
 
         other_modem = copy.copy(self.modem)
         self.modem.paired_tx_modem = other_modem
@@ -109,26 +109,26 @@ class TestModem(unittest.TestCase):
             SIGNAL
         )
         np.testing.assert_array_equal(
-            self.mock_digital_modem.receive_frame.call_args[0][0],
+            self.mock_waveform_generator.receive_frame.call_args[0][0],
             SIGNAL
         )
         self.assertEqual(
-            self.mock_digital_modem.receive_frame.call_args[0][1], 0)
+            self.mock_waveform_generator.receive_frame.call_args[0][1], 0)
         self.assertEqual(
-            self.mock_digital_modem.receive_frame.call_args[0][2], NOISE)
+            self.mock_waveform_generator.receive_frame.call_args[0][2], NOISE)
 
     def test_get_bit_energy(self) -> None:
         _ = self.modem.get_bit_energy()
-        self.mock_digital_modem.get_bit_energy.assert_called_once()
+        self.mock_waveform_generator.get_bit_energy.assert_called_once()
 
     def test_get_symbol_energy(self) -> None:
         _ = self.modem.get_symbol_energy()
-        self.mock_digital_modem.get_symbol_energy.assert_called_once()
+        self.mock_waveform_generator.get_symbol_energy.assert_called_once()
 
     def test_set_channel(self) -> None:
         mock_channel = Mock()
         self.modem.set_channel(mock_channel)
-        self.mock_digital_modem.set_channel.assert_called_once_with(
+        self.mock_waveform_generator.set_channel.assert_called_once_with(
             mock_channel)
 
     def test_tx_power(self) -> None:

@@ -5,13 +5,13 @@ import numpy as np
 
 from parameters_parser.parameters_psk_qam import ParametersPskQam
 from parameters_parser.parameters_tx_modem import ParametersTxModem
-from modem.digital_modem_psk_qam import DigitalModemPskQam
+from modem.waveform_generator_psk_qam import WaveformGeneratorPskQam
 from modem.modem import Modem
 from source.bits_source import BitsSource
 import tests.unit_tests.modem.utils as utils
 
 
-class TestDigitalModemPskQam(unittest.TestCase):
+class TestWaveformGeneratorPskQam(unittest.TestCase):
 
     def setUp(self) -> None:
 
@@ -52,15 +52,15 @@ class TestDigitalModemPskQam(unittest.TestCase):
         self.modem_qpsk_params = ParametersTxModem()
         self.modem_qpsk_params.technology = self.params_qpsk
 
-        self.digital_modem_qpsk = DigitalModemPskQam(self.params_qpsk)
+        self.waveform_generator_qpsk = WaveformGeneratorPskQam(self.params_qpsk)
         self.modem_qpsk = Modem(self.modem_qpsk_params, self.source_qpsk, rng)
 
         # create (method) stubs for dependencies
-        self.digital_modem_qpsk._mapping.get_symbols = lambda bits: bits[::int(  # type: ignore
+        self.waveform_generator_qpsk._mapping.get_symbols = lambda bits: bits[::int(  # type: ignore
             np.log2(self.params_qpsk.modulation_order))]
-        self.digital_modem_qpsk._filter_tx.filter = lambda frame: frame  # type: ignore
-        self.digital_modem_qpsk._filter_rx.filter = lambda frame: frame  # type: ignore
-        self.digital_modem_qpsk._filter_rx.delay_in_samples = 0
+        self.waveform_generator_qpsk._filter_tx.filter = lambda frame: frame  # type: ignore
+        self.waveform_generator_qpsk._filter_rx.filter = lambda frame: frame  # type: ignore
+        self.waveform_generator_qpsk._filter_rx.delay_in_samples = 0
 
         self.timestamp = 0
         ########################################
@@ -101,7 +101,7 @@ class TestDigitalModemPskQam(unittest.TestCase):
         self.modem_qam_params = ParametersTxModem()
         self.modem_qam_params.technology = self.params_qam
 
-        self.digital_modem_qam = DigitalModemPskQam(self.params_qam)
+        self.waveform_generator_qam = WaveformGeneratorPskQam(self.params_qam)
         self.modem_qam = Modem(self.modem_qam_params, self.source_qam, rng)
         ########################################
 
@@ -110,48 +110,48 @@ class TestDigitalModemPskQam(unittest.TestCase):
         samples_in_frame_expected = int(np.ceil((frame_duration + self.params_qpsk.guard_interval)
                                                 * self.params_qpsk.sampling_rate))
         self.assertEqual(
-            self.digital_modem_qpsk._samples_in_frame,
+            self.waveform_generator_qpsk._samples_in_frame,
             samples_in_frame_expected)
 
     def test_proper_frame_length(self) -> None:
-        self.modem_qpsk.digital_modem._filter_tx.delay_in_samples = 0
+        self.modem_qpsk.waveform_generator._filter_tx.delay_in_samples = 0
         bits_in_frame = utils.flatten_blocks(
             self.source_qpsk.get_bits(
                 self.params_qpsk.bits_in_frame))
 
-        output_signal, _, _ = self.digital_modem_qpsk.create_frame(
+        output_signal, _, _ = self.waveform_generator_qpsk.create_frame(
             self.timestamp, bits_in_frame)
 
         self.assertEqual(
             len(output_signal),
-            self.digital_modem_qpsk._samples_in_frame)
+            self.waveform_generator_qpsk._samples_in_frame)
 
     def test_tx_filter_time_delay(self) -> None:
-        self.digital_modem_qpsk._filter_tx.delay_in_samples = 5
+        self.waveform_generator_qpsk._filter_tx.delay_in_samples = 5
         bits_in_frame = utils.flatten_blocks(
             self.source_qpsk.get_bits(
                 self.params_qpsk.bits_in_frame))
 
-        _, _, initial_sample_num = self.digital_modem_qpsk.create_frame(
+        _, _, initial_sample_num = self.waveform_generator_qpsk.create_frame(
             self.timestamp, bits_in_frame)
 
         self.assertEqual(
             initial_sample_num,
-            self.timestamp - self.digital_modem_qpsk._filter_tx.delay_in_samples
+            self.timestamp - self.waveform_generator_qpsk._filter_tx.delay_in_samples
         )
 
     def test_timestamp_on_frame_creation(self) -> None:
-        self.digital_modem_qpsk._filter_tx.delay_in_samples = 5
+        self.waveform_generator_qpsk._filter_tx.delay_in_samples = 5
         bits_in_frame = utils.flatten_blocks(
             self.source_qpsk.get_bits(
                 self.params_qpsk.bits_in_frame))
 
-        _, new_timestamp, _ = self.digital_modem_qpsk.create_frame(
+        _, new_timestamp, _ = self.waveform_generator_qpsk.create_frame(
             self.timestamp, bits_in_frame)
 
         self.assertEqual(
             new_timestamp,
-            self.timestamp + self.digital_modem_qpsk._samples_in_frame
+            self.timestamp + self.waveform_generator_qpsk._samples_in_frame
         )
 
     def test_too_short_signal_length_for_demodulation(self) -> None:
@@ -159,7 +159,7 @@ class TestDigitalModemPskQam(unittest.TestCase):
         timestamp_in_samples = 0
         rx_signal = np.ones((1, 3))  # empty signal cannot be demodulated
 
-        demodulated_bits, left_over_rx_signal = self.digital_modem_qpsk.receive_frame(
+        demodulated_bits, left_over_rx_signal = self.waveform_generator_qpsk.receive_frame(
             rx_signal, timestamp_in_samples, 0)
 
         self.assertIsNone(demodulated_bits[0])
@@ -174,22 +174,22 @@ class TestDigitalModemPskQam(unittest.TestCase):
             1,
             size=(
                 1,
-                self.digital_modem_qpsk._samples_in_frame +
+                self.waveform_generator_qpsk._samples_in_frame +
                 frame_overlap))
 
         timestamp_in_samples = 0
 
         # impulse response is the same as its input
-        self.digital_modem_qpsk._channel = Mock()
-        symbols_in_frame = self.digital_modem_qpsk.param.number_data_symbols
-        self.digital_modem_qpsk._channel.get_impulse_response = lambda timestamps: np.ones(
+        self.waveform_generator_qpsk._channel = Mock()
+        symbols_in_frame = self.waveform_generator_qpsk.param.number_data_symbols
+        self.waveform_generator_qpsk._channel.get_impulse_response = lambda timestamps: np.ones(
             (symbols_in_frame, 1, 1, 1))
 
-        bits, remaining_rx_signal = self.digital_modem_qpsk.receive_frame(
+        bits, remaining_rx_signal = self.waveform_generator_qpsk.receive_frame(
             rx_signal, timestamp_in_samples, 0)
 
         self.assertEqual(len(bits[0]),
-                         self.digital_modem_qpsk.param.bits_in_frame)
+                         self.waveform_generator_qpsk.param.bits_in_frame)
         self.assertEqual(remaining_rx_signal.shape[1], frame_overlap)
 
     def test_proper_bit_energy_calculation(self) -> None:
@@ -253,7 +253,7 @@ class TestDigitalModemPskQam(unittest.TestCase):
         # compare the measured energy with the expected values
         self.assertAlmostEqual(
             power,
-            modem.digital_modem.get_power(),
+            modem.waveform_generator.get_power(),
             delta=power *
             relative_difference)
 

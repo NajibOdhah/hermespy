@@ -5,12 +5,12 @@ from typing import List
 
 import numpy as np
 
-from parameters_parser.parameters_digital_modem import ParametersDigitalModem
+from parameters_parser.parameters_waveform_generator import ParametersWaveformGenerator
 
 FrameElementDef = namedtuple('FrameElementDef', 'type number_of_samples')
 
 
-class ParametersOfdm(ParametersDigitalModem):
+class ParametersOfdm(ParametersWaveformGenerator):
     """This class implements the parameters parser of an OFDM modem
 
     Attributes:

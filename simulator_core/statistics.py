@@ -81,11 +81,11 @@ class Statistics:
         ]
 
         self._tx_sampling_rate = [
-            modem.digital_modem.sampling_rate for modem in tx_modems
+            modem.waveform_generator.sampling_rate for modem in tx_modems
         ]
 
         self._rx_sampling_rate = [
-            modem.digital_modem.sampling_rate for modem in rx_modems
+            modem.waveform_generator.sampling_rate for modem in rx_modems
         ]
 
         self._frequency_range_tx = [

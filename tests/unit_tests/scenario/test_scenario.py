@@ -47,7 +47,7 @@ class TestScenario(unittest.TestCase):
 
         self.mock_rx_modem = Mock()
         self.mock_rx_modem.param.number_of_antennas = 1
-        self.mock_rx_modem.digital_modem.param.sampling_rate = 1e9
+        self.mock_rx_modem.waveform_generator.param.sampling_rate = 1e9
         self.mock_rx_modem.param.tx_modem = 0
         self.mock_rx_modems = [self.mock_rx_modem] * \
             self.params_scenario.number_of_rx_modems
