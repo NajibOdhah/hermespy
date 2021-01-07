@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from modem.coding.repetition_encoder import RepetitionEncoder, RepetitionDecoder
+from modem.coding.repetition_encoder import RepetitionEncoder
 from parameters_parser.parameters_repetition_encoder import ParametersRepetitionEncoder
 
 
@@ -113,36 +113,52 @@ class TestRepetitionEncoder(unittest.TestCase):
 
         self.assertEqual(encoder.data_bits_k, 1)
 
-
-class TestRepetitionDecoder(unittest.TestCase):
-    def setUp(self) -> None:
-        self.params_encoder = ParametersRepetitionEncoder()
+    def test_decoding_two_blocks_n3k2(self) -> None:
         self.params_encoder.encoded_bits_n = 3
         self.params_encoder.data_bits_k = 2
-        self.bits_in_frame = 10
-
         encoder = RepetitionEncoder(self.params_encoder, self.bits_in_frame)
 
-        self._rDecoder = RepetitionDecoder(encoder)
-
-    def test_decoding_two_blocks_n3k2(self) -> None:
         data_bits = [np.array([1]), np.array([0])]
         encoded_bits = [np.array([1, 1, 1, 0, 0]), np.array([0, 0, 0, 0, 0])]
 
-        decoded_bits = self._rDecoder.decode(encoded_bits)
+        decoded_bits = encoder.decode(encoded_bits)
         _assert_frame_equality(data_bits, decoded_bits)
 
     def test_decoding_one_block_n2k1(self) -> None:
         self.params_encoder.encoded_bits_n = 2
         self.params_encoder.data_bits_k = 1
-        decoder = RepetitionDecoder(
-            RepetitionEncoder(self.params_encoder, self.bits_in_frame)
+        encoder = RepetitionEncoder(
+            self.params_encoder, self.bits_in_frame
         )
         data_bits = [np.array([1, 0, 1, 1, 1])]
         encoded_bits = [np.repeat(data_bits, 2)]
 
-        decoded_bits = decoder.decode(encoded_bits)
+        decoded_bits = encoder.decode(encoded_bits)
         _assert_frame_equality(data_bits, decoded_bits)
+
+# class TestRepetitionDecoder(unittest.TestCase):
+#     def setUp(self) -> None:
+#         self.params_encoder = ParametersRepetitionEncoder()
+#         self.params_encoder.encoded_bits_n = 3
+#         self.params_encoder.data_bits_k = 2
+#         self.bits_in_frame = 10
+
+#         encoder = RepetitionEncoder(self.params_encoder, self.bits_in_frame)
+
+#         self._rDecoder = RepetitionDecoder(encoder)
+
+
+#     def test_decoding_one_block_n2k1(self) -> None:
+#         self.params_encoder.encoded_bits_n = 2
+#         self.params_encoder.data_bits_k = 1
+#         decoder = RepetitionDecoder(
+#             RepetitionEncoder(self.params_encoder, self.bits_in_frame)
+#         )
+#         data_bits = [np.array([1, 0, 1, 1, 1])]
+#         encoded_bits = [np.repeat(data_bits, 2)]
+
+#         decoded_bits = decoder.decode(encoded_bits)
+#         _assert_frame_equality(data_bits, decoded_bits)
 
 
 def _assert_frame_equality(

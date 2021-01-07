@@ -1,12 +1,17 @@
 import unittest
 from unittest.mock import Mock
+from typing import List
+
 import numpy as np
 
 from modem.coding.encoder import Encoder
 
 
 class StubEncoder(Encoder):
-    def encode(self, bits: np.array) -> np.array:
+    def encode(self, bits: List[np.array]) -> List[np.array]:
+        return bits
+
+    def decode(self, bits: List[np.array]) -> List[np.array]:
         return bits
 
 

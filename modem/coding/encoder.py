@@ -8,7 +8,8 @@ import numpy as np
 class Encoder(ABC):
     """This class serves as an abstract class for all encoders.
 
-    All deriving classes must overwrite the `encode(bits)` function.
+    All deriving classes must overwrite the `encode(data_bits)` and
+    `decode(encoded_bits)` function.
     """
 
     def __init__(self, params: ParametersEncoder, bits_in_frame: int) -> None:
@@ -21,7 +22,7 @@ class Encoder(ABC):
         self.bits_in_frame = bits_in_frame
 
     @abstractmethod
-    def encode(self, bits: List[np.array]) -> List[np.array]:
+    def encode(self, data_bits: List[np.array]) -> List[np.array]:
         """This method encodes the incoming bits.
 
         Args:
@@ -33,6 +34,21 @@ class Encoder(ABC):
             List[np.array]:
                 List of blocks with the encoded bits. Each list item corresponds
                 to a block containing a code word.
+        """
+        pass
+
+    @abstractmethod
+    def decode(self, encoded_bits: List[np.array]) -> List[np.array]:
+        """Decode code words.
+
+        Args:
+            encoded_bits(List[np.array]):
+                List of blocks with the encoded bits. Each list item corresponds
+                to a block containing a code word.
+        Returns:
+            List[np.array]:
+                List of data_bits that are contained in the current frame.
+                Each list element is one block with bits created by the BitsSource.
         """
         pass
 

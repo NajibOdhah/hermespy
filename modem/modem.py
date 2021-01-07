@@ -13,7 +13,7 @@ from modem.waveform_generator_psk_qam import WaveformGeneratorPskQam
 from modem.waveform_generator_chirp_fsk import WaveformGeneratorChirpFsk
 from modem.waveform_generator_ofdm import WaveformGeneratorOfdm
 from modem.rf_chain import RfChain
-from modem.coding.repetition_encoder import RepetitionEncoder, RepetitionDecoder
+from modem.coding.repetition_encoder import RepetitionEncoder
 from source.bits_source import BitsSource
 from channel.channel import Channel
 
@@ -43,7 +43,6 @@ class Modem(Generic[P]):
         self.encoder = RepetitionEncoder(
             ParametersRepetitionEncoder(),
             self.param.technology.bits_in_frame)
-        self.decoder = RepetitionDecoder(self.encoder)
         self.waveform_generator: Any
 
         if isinstance(param.technology, ParametersPskQam):
@@ -191,7 +190,7 @@ class Modem(Generic[P]):
                 timestamp_in_samples += initial_size - rx_signal.shape[1]
 
             if not bits_rx[0] is None:
-                bits_rx_decoded = self.decoder.decode(bits_rx)
+                bits_rx_decoded = self.encoder.decode(bits_rx)
                 all_bits.extend(bits_rx_decoded)
 
         return all_bits
@@ -212,4 +211,3 @@ class Modem(Generic[P]):
         if isinstance(channel.param.encoding, ParametersRepetitionEncoder):
             self.encoder = RepetitionEncoder(
                 channel.param.encoding, self.param.technology.bits_in_frame)
-            self.decoder = RepetitionDecoder(self.encoder)
